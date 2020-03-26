@@ -5,6 +5,7 @@
   <meta http-equiv="Cache-Control" content="no-cache">
   <title>出席確認ページ</title>
   <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/design.css') }}">
 </head>
 
 <style>
@@ -16,12 +17,12 @@
    }
    td, th {
        border: 1px solid #000000;   /* 境界線を実線で指定する */
-       background-color: rgba(0,0,0,0.3);/* 背景色を指定する */
+       background-color: rgba(255, 255, 255, 0.75);/* 背景色を指定する */
        text-align: center;  /* インライン要素の位置を指定する */
        padding: 3px;        /* 要素の余白を指定する(上下左右) */
    }
    th {
-       background-color: #31A9EE;   /* 見出しの背景色を指定する */
+       background-color: #2cd;   /* 見出しの背景色を指定する */
    }
 </style>
 
@@ -30,6 +31,11 @@
   <h1>{{ title }}</h1>
   <h1>現在出席中のメンバー</h1>
   {{ table1 }}
+
+  <h2>顔画像の確認</h2>
+  {% for name in list %}
+  <a href="http://127.0.0.1:8000/static/images/{{dict[name]}}">{{ name }}</a> <br>
+  {% endfor %}
 
   <h2>まだ来ていないメンバー</h2>
   {{ table2 }}

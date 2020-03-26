@@ -2,6 +2,8 @@ import io
 import csv
 import pprint
 import datetime
+import os
+import shutil
 from flask import Flask, render_template, request, jsonify
 from wtforms import Form, StringField, SubmitField, validators, ValidationError
 import numpy as np
@@ -12,9 +14,11 @@ app = Flask(__name__)
 
 allmemberlist = ['Kazuki_Egashira', 'Shiho_Aoki', 'Yusuke_Kimura', 'Yuta_Hosokawa']
 memberlist = []
+attendlist = []
 attendance = {}
 attendTime = {}
 exitTime = {}
+attendImg = {}
 
 class AtdItem(object):
     def __init__(self, name, description1):
@@ -59,7 +63,7 @@ class addUser(Form):
 
 def read_csv():
     with open('face_log.csv') as f:
-        reader = csv.DictReader(f, fieldnames=['name', 'time', 'state'])
+        reader = csv.DictReader(f, fieldnames=['name', 'time', 'state', 'path'])
         logdictlist = [row for row in reader]
 
     loglength = len(logdictlist)
@@ -76,6 +80,7 @@ def update_log(logdictlist):
         if logdictlist[i]['state'] == 'in':
             attendance[logdictlist[i]['name']] = True
             attendTime[logdictlist[i]['name']] = logdictlist[i]['time']
+            attendImg[logdictlist[i]['name']] = logdictlist[i]['path']
 
         if logdictlist[i]['state'] == 'out':
             attendance[logdictlist[i]['name']] = False
@@ -103,12 +108,16 @@ def index2():
         name = memberlist[i]
         if attendance[name]:
             atditems.append(AtdItem(name, attendTime[name]))
+            if name not in attendlist:
+                attendlist.append(name)
         else:
             natditems.append(NotAtdItem(name))
+            if name in attendlist:
+                attendlist.remove(name)
             
     atdtable = AtdTable(atditems)
     natdtable = NotAtdTable(natditems)
-    return render_template('index2.html', table1=atdtable, table2=natdtable)
+    return render_template('index2.html', table1=atdtable, table2=natdtable, list=attendlist, dict=attendImg)
 
 @app.route('/log/')
 def index2_log():
@@ -159,6 +168,8 @@ def index5():
     attendance.clear()
     attendTime.clear()
     exitTime.clear()
+    shutil.rmtree('static/images')
+    os.mkdir('static/images')
     return render_template('index5.html')
 
 if __name__ == "__main__":
